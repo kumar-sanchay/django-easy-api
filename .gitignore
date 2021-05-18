@@ -4,4 +4,5 @@ migrations/
 __pycache__/
 build/
 dist/
-
+django_easy_api.egg-info/
+django_model_api.egg-info/
