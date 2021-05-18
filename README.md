@@ -46,6 +46,7 @@ Also you can attach query_params only for `id` in your url.
 For example:
 
 ```
-http://localhost:8000/myurl/id=1
+http://localhost:8000/myurl/?id=1
 ```
+
 
