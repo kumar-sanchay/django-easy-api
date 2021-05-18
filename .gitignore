@@ -1,0 +1,7 @@
+setup.py
+db.sqlite3
+migrations/
+__pycache__/
+build/
+dist/
+
