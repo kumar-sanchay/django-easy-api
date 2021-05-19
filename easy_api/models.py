@@ -17,11 +17,10 @@ class EasyAPI(models.Model, APIView):
         field1 = models.CharField(max_length=100)
 
     in urls.py
-    from easy_api.models import EasyAPI
     from .models import MyClass
 
     urlpaterns = [
-        path('myurl/', EasyAPI.as_view(), {'child_class': MyClass})
+        path('myurl/', MyClass.as_view())
     ]
     """
     def get(self, request, *args, **kwargs):
@@ -30,17 +29,17 @@ class EasyAPI(models.Model, APIView):
         class EasyAPISerializer(serializers.ModelSerializer):
             class Meta:
                 fields = '__all__'
-                model = kwargs['child_model']
+                model = self.__class__
 
-        self.child_model = kwargs['child_model']
+        self.child_model = self.__class__
         
         pk = None
         if 'id' in request.query_params:
             pk = request.query_params['id']
 
         try:
-            queryset = self.child_model.objects.all() if pk is None else self.child_model.objects.get(pk=pk)
-        except self.child_model.DoesNotExist:
+            queryset = self.__class__.objects.all() if pk is None else self.__class__.objects.get(pk=pk)
+        except self.__class__.DoesNotExist:
             return Response({'msg': f'object with id={pk} does not exists'}, status=status.HTTP_404_NOT_FOUND)
         if pk is None:
             easyapi_serializer = EasyAPISerializer(queryset, many=True)
@@ -54,7 +53,7 @@ class EasyAPI(models.Model, APIView):
         class EasyAPISerializer(serializers.ModelSerializer):
             class Meta:
                 fields = '__all__'
-                model = kwargs['child_model']
+                model = self.__class__
 
         easyapi_serializer = EasyAPISerializer(data=request.data)
         easyapi_serializer.is_valid(raise_exception=True)
@@ -73,15 +72,15 @@ class EasyAPI(models.Model, APIView):
         class EasyAPISerializer(serializers.ModelSerializer):
             class Meta:
                 fields = '__all__'
-                model = kwargs['child_model']
+                model = self.__class__
         try:
-            queryset = kwargs['child_model'].objects.get(pk=pk)
+            queryset =self.__class__.objects.get(pk=pk)
             easy_serializer = EasyAPISerializer(queryset, data=request.data, partial=True)
             easy_serializer.is_valid(raise_exception=True)
             easy_serializer.save()
 
             return Response(easy_serializer.data)
-        except kwargs['child_model'].DoesNotExist:
+        except self.__class__.DoesNotExist:
             return Response({'msg': f'object with id={pk} does not exists'}, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, *args, **kwargs):
@@ -92,11 +91,14 @@ class EasyAPI(models.Model, APIView):
         
         pk = request.query_params['id']
 
-        queryset = kwargs['child_model'].objects.filter(pk=pk)
+        queryset =self.__class__.objects.filter(pk=pk)
 
         if len(queryset)==0:
             return Response({'msg': f'object with id={pk} does not exists'}, status=status.HTTP_404_NOT_FOUND)
 
         queryset.delete()
         return Response({'msg': 'Object deleted'})
+    
+    class Meta:
+        abstract = True
 
