@@ -32,14 +32,12 @@ class MyModel(EasyAPI):
 6. This is the last step. You need to add this model in your app's urls.py
 ```python
 from django.urls import path
-from easy_api.models import EasyAPI
 from .models import MyModel
 
 urlpatterns = [
-	path('myurl/', EasyAPI.as_view(), {'child_model': MyModel}),
+	path('myurl/', MyModel.as_view()),
 ]
 ```
-Don't forget to pass the dict with child_model with your model as reference.
 
 7. That's it. Now you will have common GET/POST/PUT/DELETE methods on your model.
 Also you can attach query_params only for `id` in your url.
@@ -47,6 +45,20 @@ For example:
 
 ```
 http://localhost:8000/myurl/?id=1
+```
+
+8. You can also override get, post, put and delete method according to your need.
+For example:
+```python
+
+from django.db import models
+from easy_api.models import EasyAPI
+
+class MyModel(EasyAPI):
+	# Your Requried field here.
+	
+	def get(self, request):
+		#Your logic
 ```
 
 
